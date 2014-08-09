@@ -1,0 +1,47 @@
+# Visual Studio
+*.opensdf
+*.sdf
+*.suo
+*.user
+bin
+obj
+Debug
+Release
+p-load.exe
+
+# Windows installer
+pololu.ico
+setup_banner_wix.bmp
+setup_welcome_wix.bmp
+
+# MAC Installer
+tmpb
+*.dmg
+
+# Mac OS X
+.DS_Store
+
+# autoconf/automake
+Makefile
+Makefile.in
+/aclocal.m4
+/autom4te.cache
+/autoscan.log
+/config.*
+/configure
+/configure.scan
+/compile
+/depcomp
+/install-sh
+/missing
+.deps/
+/stamp-h1
+/*.tar.gz
+
+# C compiler outputs
+/src/p-load
+*.o
+
+# Emacs
+*~
+\#*
