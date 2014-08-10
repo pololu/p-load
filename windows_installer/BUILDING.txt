@@ -14,7 +14,7 @@ Visual Studio to build the project.
 3) Make sure you have the Pololu Corporation signing certificate installed on
    your computer.
 
-4) Make sure you have added setup_banner_wix.bmp and setup_welcome_wix.bmp to
+4) Make sure you have added pololu.ico, setup_banner_wix.bmp, and setup_welcome_wix.bmp to
    this directory.
 
 5) In a Command Prompt, navigate to this directory and run build_installer.bat.
