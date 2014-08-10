@@ -59,9 +59,9 @@ static const char help[] =
     "\n"
     "HEXFILE is the name of the .HEX file to be used.\n"
     "\n"
-    "Example: p-load w app.hex\n"
-    "Example: p-load wait write_flash app.hex restart -d 12345678\n"
-    "Example: p-load erase\n"
+    "Example: p-load -w app.hex\n"
+    "Example: p-load -d 12345678 --wait --write-flash app.hex --restart\n"
+    "Example: p-load --erase\n"
     "\n";
 
 // Global variable holding the serial number of the bootloader the
