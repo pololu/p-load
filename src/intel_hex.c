@@ -221,7 +221,7 @@ IHX_RESULT ihxWrite(FILE * file, ihxMemory * memories)
         uint32_t address = mem->startAddress;  // The address of the next byte that needs to be written to the file.
         while (address < mem->endAddress)      // Each iteration of this loop will write one data record.
         {
-            uint8_t checksum = 0;
+            uint8_t checksum;
 
             uint32_t dataBytesToWrite;                 // Decide the number of bytes to write in this line.
             if (address + blockSize <= mem->endAddress)
@@ -237,6 +237,7 @@ IHX_RESULT ihxWrite(FILE * file, ihxMemory * memories)
             {
                 // Emit an extended linear address record because the high 16 bits changed.
                 fprintf(file, ":02000004%04X", address >> 16);
+                checksum = 0;
                 checksum += 2 + 4;
                 checksum += (address >> 16) & 0xFF;
                 checksum += (address >> 24) & 0xFF;
@@ -245,6 +246,7 @@ IHX_RESULT ihxWrite(FILE * file, ihxMemory * memories)
 
             // Emit the data record.
             fprintf(file, ":%02X%04X00", dataBytesToWrite, address & 0xFFFF);
+            checksum = 0;
             checksum += dataBytesToWrite;
             checksum += (address >> 8) & 0xFF;
             checksum += address & 0xFF;
