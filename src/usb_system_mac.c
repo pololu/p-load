@@ -369,6 +369,31 @@ USB_RESULT usbDeviceOpenFromList(const usbDeviceList * list, uint32_t index, usb
     newDevice->dev = dev;
     *device = newDevice;
 
+    // Get the device into configuration 1.
+    // (This happens automatically on Linux and Windows when the device is enumerated.)
+    UInt8 configNum = 0;
+    kr = (*dev)->GetConfiguration(dev, &configNum);
+    if (kIOReturnSuccess != kr)
+    {
+        u_error("Error getting USB device configuration.");
+        free(newDevice);
+        (*dev)->USBDeviceClose(dev);
+        (*dev)->Release(dev);
+        return USB_ERROR_UNEXPECTED;
+    }
+    if (configNum != 1)
+    {
+        kr = (*dev)->SetConfiguration(dev, 1);
+        if (kIOReturnSuccess != kr)
+        {
+            u_error("Error setting USB device configuration.");
+            free(newDevice);
+            (*dev)->USBDeviceClose(dev);
+            (*dev)->Release(dev);
+            return USB_ERROR_UNEXPECTED;            
+        }
+    }
+
     return USB_SUCCESS;
 }
 
