@@ -1,8 +1,12 @@
 Pololu USB Bootloader Utility (p-load)
 
 The Pololu USB Bootloader Utility is a command-line program that
-allows you to write HEX files to certain USB bootloaders on Pololu
-products.
+allows you to read and write from the memories of certain Pololu
+products over USB using their USB bootloaders.
+
+This utility currently supports the following products:
+
+  * P-Star 25K50 Micro
 
 To get a help screen showing the available command-line arguments,
 just run "p-load" at a command prompt with no arguments.

@@ -1,8 +1,8 @@
 Pololu USB Bootloader Utility (p-load) for Mac OS X
 
 The Pololu USB Bootloader Utility is a command-line program that
-allows you to write HEX files to certain USB bootloaders on Pololu
-products.
+allows you to read and write from the memories of certain Pololu
+products over USB using their USB bootloaders.
 
 To install, drag "p-load" to "usrbin".  This will install p-load in
 /usr/bin so you can run it in a Terminal by typing "p-load".  Because
