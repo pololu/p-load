@@ -64,57 +64,20 @@ static const char help[] =
     "Example: p-load --erase\n"
     "\n";
 
-// Global variable holding the serial number of the bootloader the
-// user wants to connect to, or NULL if none was specified.
+// The serial number of the bootloader the user wants to connect to,
+// or NULL if none was specified.
 const char * desiredSerialNumber = NULL;
+
+bool waitForBootloaderFlag = false;
+
+// True if we will restart the bootloader at the end.
+bool restartBootloaderFlag = false;
 
 // List of connected bootloaders
 ploaderList * bootloaderList = NULL;
 
-// Global variable holding the handle to the bootloader we
-// are connected to.
+// Handle to the bootloader we are connected to.
 ploaderHandle * bootloaderHandle = NULL;
-
-ExitCode allocateSerialNumberInput(void ** data)
-{
-    assert(data != NULL);
-    char ** ptr = malloc(sizeof(const char *));
-    if (ptr == NULL)
-    {
-        error("Failed to allocate memory for a pointer.");
-        return ERROR_OPERATION_FAILED;
-    }
-    *ptr = NULL;
-    *data = ptr;
-    return 0;
-}
-
-ExitCode parseSerialNumberInput(void * data)
-{
-    const char * arg = argReaderNext();
-    if (arg == NULL)
-    {
-        error("Expected a serial number after %s.", argReaderLast());
-        return ERROR_BAD_ARGS;
-    }
-
-    *((const char **)data) = arg;
-
-    return 0;
-}
-
-ExitCode setDesiredSerialNumber(void * x)
-{
-    char ** data = x;
-    desiredSerialNumber = *data;
-    return 0;
-}
-
-void freeSerialNumberInput(void * x)
-{
-    char ** data = x;
-    free(data);
-}
 
 ExitCode listSupportedBootloaders(void * data)
 {
@@ -226,8 +189,10 @@ ExitCode bootloaderHandleRequire()
     return 0;
 }
 
-ExitCode waitForBootloader(void * data)
+ExitCode waitForBootloaderIfNeeded()
 {
+    if (!waitForBootloaderFlag) { return 0; }
+
     time_t waitStartTime = time(NULL);
 
     while(1)
@@ -327,8 +292,10 @@ ExitCode listConnectedBootloaders(void * data)
     return 0;
 }
 
-ExitCode restartBootloader(void * data)
+ExitCode restartBootloaderIfNeeded()
 {
+    if (!restartBootloaderFlag) { return 0; }
+
     ExitCode exitCode = bootloaderHandleRequire();
     if (exitCode) { return exitCode; }
 
@@ -508,17 +475,6 @@ ExitCode writeFlashAndEeprom(void * x)
     {
         return ERROR_OPERATION_FAILED;
     }
-    return 0;
-}
-
-ExitCode writeFlashAndEepromAndRestart(void * x)
-{
-    ExitCode exitCode = writeFlashAndEeprom(x);
-    if (exitCode) { return exitCode; }
-
-    exitCode = restartBootloader(x);
-    if (exitCode) { return exitCode; }
-
     return 0;
 }
 
@@ -721,144 +677,204 @@ ExitCode readEeprom(void * x)
     return readMemories(data, false, true);
 }
 
-const actionType actionTypes[] = {
-    {
-        "-d",
-        0,
-        &allocateSerialNumberInput,
-        &parseSerialNumberInput,
-        &setDesiredSerialNumber,
-        &executeNothing,
-        &freeSerialNumberInput,
-    },
-    {
-        "--list",
-        1,
-        &allocateNothing,
-        &parseNothing,
-        &prepareNothing,
-        &listConnectedBootloaders,
-        &freeNothing,
-    },
-    {
-        "--list-supported",
-        1,
-        &allocateNothing,
-        &parseNothing,
-        &prepareNothing,
-        &listSupportedBootloaders,
-        &freeNothing
-    },
-    {
-        "--wait",
-        2,
-        &allocateNothing,
-        &parseNothing,
-        &prepareNothing,
-        &waitForBootloader,
-        &freeNothing,
-    },
-    {
-        "-w",
-        4,
-        &allocateHexFileInput,
-        &parseHexFileInputArg,
-        &readHexFile,
-        &writeFlashAndEepromAndRestart,
-        &freeHexFileInput,
-    },
-    {
-        "--write",
-        3,
-        &allocateHexFileInput,
-        &parseHexFileInputArg,
-        &readHexFile,
-        &writeFlashAndEeprom,
-        &freeHexFileInput,
-    },
-    {
-        "--write-flash",
-        3,
-        &allocateHexFileInput,
-        &parseHexFileInputArg,
-        &readHexFile,
-        &writeFlash,
-        &freeHexFileInput,
-    },
-    {
-        "--write-eeprom",
-        3,
-        &allocateHexFileInput,
-        &parseHexFileInputArg,
-        &readHexFile,
-        &writeEeprom,
-        &freeHexFileInput,
-    },
-    {
-        "--erase",
-        3,
-        &allocateHexFileInput,
-        &parseNothing,
-        &clearHexFileInput,
-        &writeFlashAndEeprom,
-        &freeHexFileInput,
-    },
-    {
-        "--erase-flash",
-        3,
-        &allocateHexFileInput,
-        &parseNothing,
-        &clearHexFileInput,
-        &writeFlash,
-        &freeHexFileInput,
-    },
-    {
-        "--erase-eeprom",
-        3,
-        &allocateHexFileInput,
-        &parseNothing,
-        &clearHexFileInput,
-        &writeEeprom,
-        &freeHexFileInput,
-    },
-    {
-        "--read",
-        3,
-        &allocateHexFileOutput,
-        &parseHexFileOutputArg,
-        &prepareHexFileOutput,
-        &readFlashAndEeprom,
-        &freeHexFileOutput,
-    },
-    {
-        "--read-flash",
-        3,
-        &allocateHexFileOutput,
-        &parseHexFileOutputArg,
-        &prepareHexFileOutput,
-        &readFlash,
-        &freeHexFileOutput,
-    },
-    {
-        "--read-eeprom",
-        3,
-        &allocateHexFileOutput,
-        &parseHexFileOutputArg,
-        &prepareHexFileOutput,
-        &readEeprom,
-        &freeHexFileOutput,
-    },
-    {
-        "--restart",
-        5,
-        &allocateNothing,
-        &parseNothing,
-        &prepareNothing,
-        &restartBootloader,
-        &freeNothing,
-    },
-    { NULL },
+const actionType actList = {
+    .execute = &listConnectedBootloaders,
 };
+
+const actionType actListSupported = {
+    .execute = &listSupportedBootloaders,
+};
+
+const actionType actWriteFlashAndEeprom = {
+    .allocate = &allocateHexFileInput,
+    .parse = &parseHexFileInputArg,
+    .prepare = &readHexFile,
+    .execute = &writeFlashAndEeprom,
+    .freeFunc = &freeHexFileInput,
+};
+
+const actionType actWriteFlash = {
+    .allocate = &allocateHexFileInput,
+    .parse = &parseHexFileInputArg,
+    .prepare = &readHexFile,
+    .execute = &writeFlash,
+    .freeFunc = &freeHexFileInput,
+};
+
+const actionType actWriteEeprom = {
+    .allocate = &allocateHexFileInput,
+    .parse = &parseHexFileInputArg,
+    .prepare = &readHexFile,
+    .execute = &writeEeprom,
+    .freeFunc = &freeHexFileInput,
+};
+
+const actionType actEraseFlashAndEeprom = {
+    .allocate = &allocateHexFileInput,
+    .prepare = &clearHexFileInput,
+    .execute = &writeFlashAndEeprom,
+    .freeFunc = &freeHexFileInput,
+};
+
+const actionType actEraseFlash = {
+    .allocate = &allocateHexFileInput,
+    .prepare = &clearHexFileInput,
+    .execute = &writeFlash,
+    .freeFunc = &freeHexFileInput,
+};
+
+const actionType actEraseEeprom = {
+    .allocate = &allocateHexFileInput,
+    .prepare = &clearHexFileInput,
+    .execute = &writeEeprom,
+    .freeFunc = &freeHexFileInput,
+};
+
+const actionType actReadFlashAndEeprom = {
+    .allocate = &allocateHexFileOutput,
+    .parse = &parseHexFileOutputArg,
+    .prepare = &prepareHexFileOutput,
+    .execute = &readFlashAndEeprom,
+    .freeFunc = &freeHexFileOutput,
+};
+
+const actionType actReadFlash = {
+    .allocate = &allocateHexFileOutput,
+    .parse = &parseHexFileOutputArg,
+    .prepare = &prepareHexFileOutput,
+    .execute = &readFlash,
+    .freeFunc = &freeHexFileOutput,
+};
+
+const actionType actReadEeprom = {
+    .allocate = &allocateHexFileOutput,
+    .parse = &parseHexFileOutputArg,
+    .prepare = &prepareHexFileOutput,
+    .execute = &readEeprom,
+    .freeFunc = &freeHexFileOutput,
+};
+
+ExitCode parseArgs()
+{
+    const char * arg;
+    while (1)
+    {
+        arg = argReaderNext();
+
+        if (arg == NULL)
+        {
+            break;  // Done reading arguments.
+        }
+
+        int exitCode = 0;
+
+        if (strcmp(arg, "-d") == 0)
+        {
+            if (desiredSerialNumber != NULL)
+            {
+                error("Serial number can only be specified once.");
+                return ERROR_BAD_ARGS;
+            }
+            desiredSerialNumber = argReaderNext();
+            if (desiredSerialNumber == NULL)
+            {
+                error("Expected a serial number after %s.", arg);
+                return ERROR_BAD_ARGS;
+            }
+        }
+        else if (strcmp(arg, "--list") == 0)
+        {
+            exitCode = actionsAdd(&actList);
+        }
+        else if (strcmp(arg, "--list-supported") == 0)
+        {
+            exitCode = actionsAdd(&actListSupported);
+        }
+        else if (strcmp(arg, "--wait") == 0)
+        {
+            waitForBootloaderFlag = true;
+        }
+        else if (strcmp(arg, "-w") == 0)
+        {
+            exitCode = actionsAdd(&actWriteFlashAndEeprom);
+            restartBootloaderFlag = true;
+        }
+        else if (strcmp(arg, "--write") == 0)
+        {
+            exitCode = actionsAdd(&actWriteFlashAndEeprom);
+        }
+        else if (strcmp(arg, "--write-flash") == 0)
+        {
+            exitCode = actionsAdd(&actWriteFlash);
+        }
+        else if (strcmp(arg, "--write-eeprom") == 0)
+        {
+            exitCode = actionsAdd(&actWriteEeprom);
+        }
+        else if (strcmp(arg, "--erase") == 0)
+        {
+            exitCode = actionsAdd(&actEraseFlashAndEeprom);
+        }
+        else if (strcmp(arg, "--erase-flash") == 0)
+        {
+            exitCode = actionsAdd(&actEraseFlash);
+        }
+        else if (strcmp(arg, "--erase-eeprom") == 0)
+        {
+            exitCode = actionsAdd(&actEraseEeprom);
+        }
+        else if (strcmp(arg, "--read") == 0)
+        {
+            exitCode = actionsAdd(&actReadFlashAndEeprom);
+        }
+        else if (strcmp(arg, "--read-flash") == 0)
+        {
+            exitCode = actionsAdd(&actReadFlash);
+        }
+        else if (strcmp(arg, "--read-eeprom") == 0)
+        {
+            exitCode = actionsAdd(&actReadEeprom);
+        }
+        else if (strcmp(arg, "--restart") == 0)
+        {
+            restartBootloaderFlag = true;
+        }
+        else
+        {
+            error("Unknown option: %s", arg);
+            return ERROR_BAD_ARGS;
+        }
+
+        if (exitCode)
+        {
+            return exitCode;
+        }
+    }
+
+    return 0;
+}
+
+ExitCode run()
+{
+    int exitCode;
+
+    exitCode = parseArgs();
+    if (exitCode) { return exitCode; }
+
+    exitCode = waitForBootloaderIfNeeded();
+    if (exitCode) { return exitCode; }
+
+    exitCode = actionsPrepare();
+    if (exitCode) { return exitCode; }
+
+    exitCode = actionsExecute();
+    if (exitCode) { return exitCode; }
+
+    exitCode = restartBootloaderIfNeeded();
+    if (exitCode) { return exitCode; }
+
+    return 0;
+}
 
 // main: This is the first function to run when this utility is started.
 int main(int argc, char ** argv)
@@ -871,7 +887,7 @@ int main(int argc, char ** argv)
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-    if(argc <= 1)
+    if (argc <= 1)
     {
         printf(help);
         return ERROR_BAD_ARGS;
@@ -879,32 +895,8 @@ int main(int argc, char ** argv)
 
     argReaderInit(argc, argv);
 
-    int exitCode;
+    int exitCode = run();
 
-    exitCode = actionsCreateFromArgs(actionTypes);
-    if (exitCode)
-    {
-        actionsFree();
-        return exitCode;
-    }
-
-    exitCode = actionsSort();
-    if (exitCode)
-    {
-        actionsFree();
-        return exitCode;
-    }
-
-    exitCode = actionsPrepare();
-    if (exitCode)
-    {
-        actionsFree();
-        ploaderClose(bootloaderHandle);
-        ploaderListFree(bootloaderList);
-        return exitCode;
-    }
-
-    exitCode = actionsExecute();
     actionsFree();
     ploaderClose(bootloaderHandle);
     ploaderListFree(bootloaderList);

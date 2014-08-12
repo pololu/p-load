@@ -3,6 +3,8 @@
 
 void argReaderInit(int argc, char * argv[]);
 
+const char * argReaderCurrent();
+
 // Advance and return the current argument, or null if we have reached the end.
 // The first call of this returns argv[1] because argv[0] is just the program name.
 const char * argReaderNext();

@@ -6,10 +6,6 @@
 typedef enum ACTION_TYPE_ID ACTION_TYPE_ID;
 
 typedef struct actionType {
-    const char * name;
-
-    unsigned int sortOrder;
-
     // Prepares any memory that the action needs to hold, or just
     // returns NULL if it doesn't need any.
     ExitCode (*allocate)(void **);
@@ -38,16 +34,9 @@ typedef struct actionInstance {
     void * data;
 } actionInstance;
 
-ExitCode actionsCreateFromArgs(const actionType * types);
-ExitCode actionsSort();
+ExitCode actionsAdd(const actionType * type);
 ExitCode actionsPrepare();
 ExitCode actionsExecute();
 void actionsFree();
-
-ExitCode allocateNothing(void ** data);
-ExitCode parseNothing(void * data);
-ExitCode prepareNothing(void * data);
-ExitCode executeNothing(void * data);
-void freeNothing(void * data);
 
 #endif

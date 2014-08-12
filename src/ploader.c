@@ -640,7 +640,7 @@ PLOADER_RESULT ploaderReadEeprom(ploaderHandle * handle, uint8_t * image, ploade
 PLOADER_RESULT ploaderRestartDevice(ploaderHandle * handle)
 {
     assert(handle != NULL);
-    const uint16_t durationMs = 500; // TODO: try 5000 to make sure it works
+    const uint16_t durationMs = 500;
     return usbDeviceControlTransfer(handle->device, 0x40,
         REQUEST_RESTART, durationMs, 0, NULL, 0, NULL);
 }
