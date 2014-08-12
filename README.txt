@@ -34,7 +34,7 @@ project.
 
 == p-load on Mac OS X ==
 
-The recommended way to get p-load for Windows is to use our installer.
+The recommended way to get p-load for Mac OS X is to use our installer.
 
 
 == p-load on Linux ==
