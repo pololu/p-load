@@ -30,3 +30,12 @@ USB_RESULT usbListFilterBySerialNumber(usbDeviceList * list, const char * serial
     }
     return USB_SUCCESS;
 }
+
+#ifndef _WIN32
+USB_RESULT usbListFilterByDeviceInterfaceGuid(usbDeviceList * list, const GUID * deviceInterfaceGuid)
+{
+    assert(list != NULL);
+    assert(deviceInterfaceGuid != NULL);
+    return USB_SUCCESS;
+}
+#endif

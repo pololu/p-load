@@ -88,17 +88,29 @@ typedef enum USB_RESULT USB_RESULT;
 */
 void usbSetVerbosity(int new_verbosity);
 
-/* Creates a of usb devices. */
+/* Creates a list of USB devices.  Be sure to call usbListFree later to free it. */
 USB_RESULT usbListCreate(usbDeviceList ** list);
+
+/* Frees a list of USB devices. */
+void usbListFree(usbDeviceList * list);
 
 /* Returns the size of the list. */
 uint32_t usbListSize(const usbDeviceList * list);
 
-void usbListFree(usbDeviceList * list);
-
+/* Removes the specified USB device from the list. */
 void usbListRemove(usbDeviceList * list, uint32_t index);
 
+/* Removes devices that don't have the specified serial number. */
 USB_RESULT usbListFilterBySerialNumber(usbDeviceList * list, const char * serialNumber);
+
+/* Removes devices that don't have the specified Windows Device Interface GUID.
+ * If you don't call this function, then usbDeviceOpenFromList might fail on Windows
+ * because the device will not have the specified interface GUID if the drivers have not been
+ * installed or if the device was very recently plugged in.
+ * This is NOT a substitute for filtering by VID and PID, because this function only works
+ * on Windows, and will just return USB_SUCCESS on other systems.
+ */
+USB_RESULT usbListFilterByDeviceInterfaceGuid(usbDeviceList * list, const GUID * deviceInterfaceGuid);
 
 /* Stores result in *info.  This is all info available from Windows, Linux, and
    and Mac OS X without actually opening a handle to the device.
@@ -117,16 +129,20 @@ USB_RESULT usbListGetDeviceInfo(const usbDeviceList * list, uint32_t index, usbD
 */
 USB_RESULT usbListGetSerialNumber(const usbDeviceList * list, uint32_t index, char * data, uint32_t length);
 
+/* Opens a handle to the specified device in the list.
+   The handle should be closed later with usbDeviceClose. */
 USB_RESULT usbDeviceOpenFromList(const usbDeviceList * list, uint32_t index, usbDevice ** device,
     const GUID * deviceInterfaceGuid);
 
+/* Closes a USB device handle. */
 void usbDeviceClose(usbDevice * device);
 
+/* Performs a USB control transfer to send or receive data from the device. */
 USB_RESULT usbDeviceControlTransfer(usbDevice * device, uint8_t bmRequestType, uint8_t bRequest,
     uint16_t wValue, uint16_t wIndex, void * data, uint16_t wLength, uint32_t * lengthTransferred);
 
+/* Returns a string describing the error code, which may have some OS-specific hints included. */
 const char * usbGetErrorDescription(USB_RESULT code);
-
 
 // Private; these variables are only for internal use inside usb_system:
 extern int usbControlTransferTimeout;

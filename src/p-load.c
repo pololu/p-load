@@ -109,6 +109,7 @@ ExitCode bootloaderListRequire()
             return ERROR_OPERATION_FAILED;
         }
     }
+
     return 0;
 }
 

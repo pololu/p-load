@@ -291,6 +291,100 @@ void usbListFree(usbDeviceList * list)
     }
 }
 
+// Takes two Windows USB device lists and checks to see if a device
+// (identified by its system index in list1) is also present in list2.
+// list1_sys_index must be the system index used by Windows, not the index
+// presented to the outside world by this library.
+USB_RESULT deviceInBothLists(HDEVINFO list1, uint32_t list1_sys_index, HDEVINFO list2, bool * present)
+{
+    assert(present != NULL);
+    assert(list1 != NULL);
+    assert(list2 != NULL);
+
+    *present = false;
+
+    bool success;
+
+    // Get the DEVINST, which we use to uniquely identify this device.
+    SP_DEVINFO_DATA device_info_data;
+    device_info_data.cbSize = sizeof(device_info_data);
+    success = SetupDiEnumDeviceInfo(list1, list1_sys_index, &device_info_data);
+    if (!success)
+    {
+        u_win32_error("Unexpected error getting device info (deviceInBothLists-1).");
+        return USB_ERROR_UNEXPECTED;
+    }
+    DEVINST devInst = device_info_data.DevInst;
+
+    // Search tmp_list to see if the device appears there.
+    uint32_t i = 0;
+    while (true)
+    {
+        device_info_data.cbSize = sizeof(device_info_data);
+        success = SetupDiEnumDeviceInfo(list2, i, &device_info_data);
+        if (!success)
+        {
+            if (GetLastError() == ERROR_NO_MORE_ITEMS)
+            {
+                // We reached the end of list2 and did not find the device.
+                *present = false;
+                return USB_SUCCESS;
+            }
+            else
+            {
+                u_win32_error("Unexpected error getting device info in order to filter by Device Interface GUID (deviceInBothLists-2).");
+                return USB_ERROR_UNEXPECTED;
+            }
+        }
+
+        if (device_info_data.DevInst == devInst)
+        {
+            // Found the device in list2.
+            *present = true;
+            return USB_SUCCESS;
+        }
+
+        i++;
+    }
+}
+
+USB_RESULT usbListFilterByDeviceInterfaceGuid(usbDeviceList * list, const GUID * deviceInterfaceGuid)
+{
+    assert(list != NULL);
+    assert(deviceInterfaceGuid != NULL);
+
+    // Create a temporary list that just has devices with the specified device interface GUID.
+    // (This is just like what we do in usbDeviceOpenFromList.)
+    HDEVINFO tmp_list = SetupDiGetClassDevsA(deviceInterfaceGuid, NULL, 0, DIGCF_DEVICEINTERFACE | DIGCF_PRESENT);
+    if (tmp_list == INVALID_HANDLE_VALUE)
+    {
+        u_win32_error("Unable to get a list of USB devices filtered by Device Interface GUID.");
+        return USB_ERROR_UNEXPECTED;
+    }
+
+    // Remove devices from list that are not present in tmp_list, using the DEVINST field
+    // to uniquely identify devices.
+    for (uint32_t i = 0; i < usbListSize(list); i++)
+    {
+        bool inBothLists;
+        USB_RESULT result = deviceInBothLists(list->handle, list->indexMapping[i], tmp_list, &inBothLists);
+        if (result)
+        {
+            SetupDiDestroyDeviceInfoList(tmp_list);
+            return result;
+        }
+
+        if (!inBothLists)
+        {
+            usbListRemove(list, i);
+            i--;
+        }
+    }
+
+    SetupDiDestroyDeviceInfoList(tmp_list);
+    return USB_SUCCESS;
+}
+
 USB_RESULT usbListGetDeviceInfo(const usbDeviceList * list, uint32_t index, usbDeviceInfo * info)
 {
     if (index >= list->size)
@@ -403,7 +497,17 @@ USB_RESULT usbDeviceOpenFromList(const usbDeviceList * list, uint32_t index, usb
         success = SetupDiEnumDeviceInfo(tmp_list, i, &device_info_data);
         if (!success)
         {
-            u_win32_error("Unexpected error getting device info in order to open a handle (2).", index, list->size);
+            if (GetLastError() == ERROR_NO_MORE_ITEMS)
+            {
+                // This can happen if the drivers are not installed properly
+                // or if the device was very recently plugged into the computer
+                // and hasn't fully been set up yet.
+                u_error("Device interface not found.  Look in the Device Manager to make sure the drivers have finished installing, and try restarting the computer.");
+            }
+            else
+            {
+                u_win32_error("Unexpected error getting device info in order to open a handle (2).", index, list->size);
+            }
             SetupDiDestroyDeviceInfoList(tmp_list);
             return USB_ERROR_UNEXPECTED;
         }

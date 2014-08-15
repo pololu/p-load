@@ -114,6 +114,17 @@ PLOADER_RESULT ploaderListCreate(ploaderList ** list)
         }
     }
 
+    // For Windows, filter out bootloaders that don't have the right
+    // DeviceInterfaceGuid yet.  This can be caused by the drivers not being
+    // installed or if the device was just recently plugged in.
+    // TODO: Add another function that exposes information about these filtered devices 
+    // so that they can show up in "p-load list" with a special status message like "driver not ready"
+    usbResult = usbListFilterByDeviceInterfaceGuid(usbList, &nativeUsbBootloaderGuid);
+    if (usbResult)
+    {
+        return usbResult;
+    }
+
     // Allocate memory for the list.
     uint32_t size = usbListSize(usbList);
     ploaderList * newList = malloc(sizeof(ploaderList));
