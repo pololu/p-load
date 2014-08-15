@@ -62,3 +62,10 @@ but you can create it yourself.  You will need to install autoconf and
 automake, which are part of the GNU Build System (also known as
 autotools), and then run "autoreconf --install".  The source
 distribution can be created by running "make dist".
+
+== EEPROM support ==
+
+This utility can work with a HEX file that contains data for both
+flash and EEPROM.  The EEPROM data should be placed in the HEX file
+starting at address 0xF00000 (so 0xF00000 corresponds to the first
+byte of EEPROM).
