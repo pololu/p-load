@@ -45,7 +45,7 @@ the source distribution.
 You will need to have libusb 1.0 installed before compiling or running
 p-load.  In Ubuntu, you can install it by running
 
-  sudo apt-get intall libusb-1.0-dev
+  sudo apt-get install libusb-1.0-dev
 
 After you have downloaded the p-load source distribution, run the
 following sequence of commands or similar in order to extract the
