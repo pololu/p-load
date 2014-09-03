@@ -146,7 +146,7 @@ IHX_RESULT ihxRead(FILE * file, const char * fileName, uint32_t * lineNumber, ih
         }
         if (length != byteCount * 2 + 11)
         {
-            lineError(fileName, *lineNumber, "Byte count field does not actualy length of line.");
+            lineError(fileName, *lineNumber, "Byte count field does not match actual line length.");
             return IHX_FILE_BAD_LINE;
         }
 
