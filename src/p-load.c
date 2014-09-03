@@ -2,6 +2,9 @@
  * This is the main source file.
  */
 
+// TODO: consider adding a --pause-on-error option for IDEs like MicroCode Studio
+// that let the output window close right after the program is done running
+
 // Remove some warnings about safety in Windows.
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
