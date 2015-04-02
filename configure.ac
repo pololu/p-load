@@ -14,13 +14,31 @@ AC_PROG_CC_STDC
 
 # Checks for the system USB library.
 AC_SUBST(USB_SYSTEM_IMPL)
-AC_CHECK_HEADERS([IOKit/usb/IOUSBLib.h],
-                 [LIBS="-framework IOkit -framework CoreFoundation $LIBS"
-                  USB_SYSTEM_IMPL=mac],
-                 [AC_CHECK_LIB(usb-1.0, libusb_init,
-                               [LIBS="-lusb-1.0 $LIBS"
-                                USB_SYSTEM_IMPL=linux],
-                               [AC_ERROR([No USB library found.])])])
+AC_CHECK_HEADERS(
+  [winusb.h],
+  [
+    LIBS="-lwinusb -lsetupapi"
+    USB_SYSTEM_IMPL=windows],
+  [
+    AC_CHECK_HEADERS(
+      [IOKit/usb/IOUSBLib.h],
+      [
+        LIBS="-framework IOkit -framework CoreFoundation $LIBS"
+        USB_SYSTEM_IMPL=mac
+      ],
+      [
+        AC_CHECK_LIB(
+          usb-1.0,
+          libusb_init,
+          [
+            LIBS="-lusb-1.0 $LIBS"
+            USB_SYSTEM_IMPL=linux
+          ],
+          [
+            AC_ERROR([No USB library found.])
+          ])
+      ])
+  ])
 
 AC_CHECK_HEADERS([stdint.h stdlib.h string.h sys/ioctl.h unistd.h])
 
