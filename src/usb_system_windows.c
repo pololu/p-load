@@ -163,7 +163,7 @@ USB_RESULT usbListGetDeviceInfo_core(HDEVINFO list_handle, uint32_t sys_index, u
         return USB_SUCCESS;
     }
 
-    result = sscanf_s(buffer+4, "VID_%04hx&PID_%04hx", &(info->idVendor), &(info->idProduct));
+    result = sscanf(buffer+4, "VID_%04hx&PID_%04hx", &(info->idVendor), &(info->idProduct));
     if (result != 2)
     {
         u_error("Unable to determine vendor ID and product ID from this Device Instance ID: \"%s\".", buffer);
