@@ -1,8 +1,0 @@
-Before making a release, be sure to upgrade the version number in all of these places:
-
-src/version.h
-src/p-load.rc (appears three times)
-windows_installer/p-load.wixproj
-mac_installer/build_installer.sh
-configure.ac
-test/test.rb

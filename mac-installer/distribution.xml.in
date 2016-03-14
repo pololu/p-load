@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<installer-gui-script minSpecVersion="1">
+  <title>Pololu USB Bootloader Utility ${P_LOAD_VERSION}</title>
+  <welcome file="welcome.html" />
+  <domains enable_anywhere="false"
+    enable_currentUserHome="false"
+    enable_localSystem="true" />
+  <pkg-ref id="app">app.pkg</pkg-ref>
+  <pkg-ref id="path">path.pkg</pkg-ref>
+  <options customize="allow" require-scripts="false" />
+  <choices-outline>
+    <line choice="app" />
+    <line choice="path" />
+  </choices-outline>
+  <choice id="app" visible="false">
+    <pkg-ref id="app" />
+  </choice>
+  <choice id="path" title="Add bin directory to the PATH"
+    description="Adds an entry to /etc/paths.d/ so you can run p-load from a terminal easily.">
+    <pkg-ref id="path" />
+  </choice>
+  <volume-check>
+    <allowed-os-versions>
+      <os-version min="10.11" />
+    </allowed-os-versions>
+  </volume-check>
+</installer-gui-script>

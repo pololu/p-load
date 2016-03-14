@@ -1,13 +1,40 @@
-#ifndef _EXIT_CODES
-#define _EXIT_CODES
+#pragma once
+
+#include "p-load.h"
 
 // Process exit codes:
-typedef enum ExitCode
-{
-    // EXIT_SUCCESS (0) means success
-    ERROR_BAD_ARGS = 1,
-    ERROR_OPERATION_FAILED = 2,
-    ERROR_BOOTLOADER_NOT_FOUND = 3,
-} ExitCode;
+#define PLOAD_ERROR_BAD_ARGS 1
+#define PLOAD_ERROR_OPERATION_FAILED 2
+#define PLOAD_ERROR_DEVICE_NOT_FOUND 3
+#define PLOAD_ERROR_DEVICE_MULTIPLE_FOUND 4
 
-#endif
+class ExceptionWithExitCode : public std::exception
+{
+public:
+    explicit ExceptionWithExitCode(uint8_t code, std::string message)
+        : code(code), msg(message)
+    {
+    }
+
+    // This destructor is required in GCC 4.6.
+    virtual ~ExceptionWithExitCode() throw() {}
+
+    virtual const char * what() const noexcept
+    {
+        return msg.c_str();
+    }
+
+    std::string message() const
+    {
+        return msg;
+    }
+
+    uint8_t getCode() const noexcept
+    {
+        return code;
+    }
+
+private:
+    uint8_t code;
+    std::string msg;
+};

@@ -1,0 +1,9 @@
+<!DOCTYPE html>
+<html>
+<style>
+body { font-family: sans-serif; }
+</style>
+<title>Welcome</title>
+<p>
+This package installs the Pololu USB Bootloader Utility (p-load)
+version ${P_LOAD_VERSION} on your computer.

@@ -1,70 +1,85 @@
-#ifndef _PLOADER_H
-#define _PLOADER_H
+#pragma once
 
-/** STANDARD TYPES ************************************************************/
+#include "p-load.h"
+#include <vector>
+#include "firmware_archive.h"
 
-#include <stdint.h>
-#include <stdbool.h>
-#include "usb_system.h"
+#define UPLOAD_TYPE_STANDARD 0
+#define UPLOAD_TYPE_DEVICE_SPECIFIC 1
+#define UPLOAD_TYPE_PLAIN 2
 
-
-/** PLOADER (Pololu USB Bootloader) *******************************************/
-
-// A PLOADER_RESULT can be any of the constants defined below or it can be
-// any members of the USB_RESULT enum defined in usb_system.h.
-typedef int PLOADER_RESULT;
-#define PLOADER_SUCCESS         0
-
-// Error codes returned by REQUEST_ERASE_FLASH and REQUEST_GET_LAST_ERROR.
-#define PLOADER_ERROR_STATE                1
-#define PLOADER_ERROR_LENGTH               2
-#define PLOADER_ERROR_PROGRAMMING          3
-#define PLOADER_ERROR_WRITE_PROTECTION     4
-#define PLOADER_ERROR_VERIFICATION         5
-#define PLOADER_ERROR_ADDRESS_RANGE        6
-#define PLOADER_ERROR_ADDRESS_ORDER        7
-#define PLOADER_ERROR_ADDRESS_ALIGNMENT    8
-#define PLOADER_ERROR_WRITE                9
-#define PLOADER_ERROR_EEPROM_VERIFICATION 10
-
-typedef void (*ploaderStatusCallback)(const char * status, uint32_t progress, uint32_t maxProgress);
-
-typedef struct ploaderProperties
+enum MemorySet
 {
-    uint16_t idVendor;
-    uint16_t idProduct;
+    MEMORY_SET_ALL,
+    MEMORY_SET_FLASH,
+    MEMORY_SET_EEPROM,
+};
+
+/** Represents a type of USB device that can be used to start a bootloader.
+ * Currently, just native USB interfaces are supported, but we could add more
+ * fields in the future to support USB serial ports and USB HIDs. */
+class PloaderAppType
+{
+public:
+    uint32_t id;
+
+    uint16_t usbVendorId, usbProductId;
+
     const char * name;
-    uint32_t appAddress;
-    uint32_t appSize;
-    uint16_t writeBlockSize;
-    bool supportsReadingFlash;
-    uint32_t eepromAddress;
-    uint32_t eepromAddressHexFile;
-    uint32_t eepromSize;
-    bool supportsEepromAccess;
-    const uint8_t * deviceCode;
-    const GUID * deviceInterfaceGuid;
-} ploaderProperties;
 
-const ploaderProperties * ploaderTable;
+    bool composite;
 
-typedef struct ploaderInfo
+    uint8_t interfaceNumber;
+
+    bool operator ==(const PloaderAppType & other) const
+    {
+        return id == other.id;
+    }
+};
+
+extern const std::vector<PloaderAppType> ploaderAppTypes;
+
+/** Represents a specific device connected to the system
+ * that we could use to start a bootloader. */
+class PloaderAppInstance
 {
-    /* serialNumber: A pointer to an ASCII string of the USB serial number, as defined
-     * in the USB 2.0 specification, except that it has been converted from UTF-16 to ASCII.
-     * For now, we assume that this serialNumber is always available, and it is unique even
-     * across different vendor/product IDs. */
-    char * serialNumber;
+public:
+    PloaderAppType type;
+    std::string serialNumber;
 
-    /* Current USB vendor ID of the bootloader, as defined in the USB 2.0 specification. */
-    uint16_t usbVendorId;
+    PloaderAppInstance()
+    {
+    }
 
-    /* Current USB product ID of the bootloader, as defined in the USB 2.0 specification. */
-    uint16_t usbProductId;
+    PloaderAppInstance(const PloaderAppType type,
+        libusbp::generic_interface gi,
+        std::string serialNumber)
+        : type(type), serialNumber(serialNumber), usbInterface(gi)
+    {
+    }
 
-    /* A pointer to an ASCII string with the name of the bootloader.  This comes from an
-     * internal table in the software but it should be the same as the USB product string
-     * descriptor. */
+    operator bool() const
+    {
+        return usbInterface;
+    }
+
+    void launchBootloader();
+
+private:
+    libusbp::generic_interface usbInterface;
+};
+
+/** Represents a type of bootloader. */
+class PloaderType
+{
+public:
+
+    uint32_t id;
+
+    uint16_t usbVendorId, usbProductId;
+
+    /** A pointer to an ASCII string with the name of the bootloader.
+     * Should be the same as the USB product string descriptor. */
     const char * name;
 
     /* The address of the first byte of the app (used in the USB protocol). */
@@ -73,99 +88,211 @@ typedef struct ploaderInfo
     /* The number of bytes in the app. */
     uint32_t appSize;
 
+    /* The number of bytes you have to write at once while writing to flash. */
+    uint16_t writeBlockSize;
+
+    /* True if the erase action does something to the EEPROM. */
+    bool erasingFlashAffectsEeprom;
+
+    /* True if you can write plaintext data to flash. */
+    bool supportsFlashPlainWriting;
+
+    /* True if you can read from flash. */
+    bool supportsFlashReading;
+
     /* The address of the first byte of EEPROM (used in the USB protocol). */
     uint32_t eepromAddress;
 
     /* The address used for the first byte of EEPROM in the HEX file. */
     uint32_t eepromAddressHexFile;
 
-    /* The number of bytes in EEPROM. */
+    /* The number of bytes in EEPROM.  Set this to a non-zero number for devices
+     * that have EEPROM, even if the bootloader does not support accessing
+     * EEPROM. */
     uint32_t eepromSize;
-} ploaderInfo;
 
-struct ploaderHandle;
+    bool supportsEepromAccess;
 
-typedef struct ploaderHandle ploaderHandle;
+    const uint8_t * deviceCode;
 
-typedef struct ploaderList ploaderList;
+    std::vector<uint32_t> matchingAppTypes;
 
-/* FUNCTION DECLARATIONS ******************************************************/
+    bool memorySetIncludesFlash(MemorySet ms) const;
+    bool memorySetIncludesEeprom(MemorySet ms) const;
 
-/* ploaderListCreate:
- * Detects all the bootloaders that are currently connected to the computer.
- * This will only detect devices if they are actually in bootloader mode. */
-PLOADER_RESULT ploaderListCreate(ploaderList ** list);
+    /* Raises an exception if reading from the specified memories is not
+     * allowed. */
+    void ensureReading(MemorySet ms) const;
 
-/* Returns the number of bootloaders in the list. */
-uint32_t ploaderListSize(const ploaderList * list);
+    /* Raises an exception if erasing the specified memories is not allowed. */
+    void ensureErasing(MemorySet ms) const;
 
-/* Removes entries from the list that do not match the specified serial number. */
-PLOADER_RESULT ploaderListFilterBySerialNumber(ploaderList * list, const char * serialNumber);
+    /* Raises an exception if reading and writing from EEPROM is not allowed. */
+    void ensureEepromAccess() const;
 
-/* Gets information about the bootloader entry in the list.
-* The caller must free the information later by calling ploaderInfoFree. */
-PLOADER_RESULT ploaderListCreateInfo(const ploaderList * list, uint32_t index, ploaderInfo ** info);
+    /* Raises an exception if reading from flash is not allowed. */
+    void ensureFlashReading() const;
 
-/* Frees the memory used for the information from ploaderListCreateInfo. */
-void ploaderInfoFree(ploaderInfo * info);
+    /* Raises an exception if writing plain data to flash is not allowed. */
+    void ensureFlashPlainWriting() const;
 
-/* Frees the memory associated with the bootloader list. */
-void ploaderListFree(ploaderList * list);
+    /* Returns a vector of the app types that correspond to this bootloader.
+     * When trying to write to this bootloader, these are the apps that you
+     * should consider restarting. */
+    std::vector<PloaderAppType> getMatchingAppTypes() const;
 
-/* Opens a handle to a device in the list. */
-PLOADER_RESULT ploaderOpenFromList(const ploaderList * list, uint32_t index, ploaderHandle ** handle);
+    bool operator ==(const PloaderType & other) const
+    {
+        return id == other.id;
+    }
+};
 
-/* Gets information about the bootloader corresponding to the handle.
-* The caller must free the information later by calling ploaderInfoFree. */
-PLOADER_RESULT ploaderCreateInfo(ploaderHandle * handle, ploaderInfo ** info);
+extern const std::vector<PloaderType> ploaderTypes;
 
-/* ploaderEraseFlash: Erases the entire application flash region. */
-PLOADER_RESULT ploaderEraseFlash(ploaderHandle * handle, ploaderStatusCallback statusCallback);
+/** Represents a specific bootloader connected to the system
+ * and ready to be used. */
+class PloaderInstance
+{
+public:
+    PloaderType type;
+    std::string serialNumber;
 
-/* ploaderWriteImage:
- * Takes care of all the details of writing an app image to the flash of a device.
- * image must be a pointer to a memory block of the right size.
- * This function takes care of:
- * - Erasing the current application.
- * - Writing the new application.
- * Note: On some bootloaders, this has the side effect of erasing the first byte
- * of EEPROM (setting to 0xFF).
- * After calling this function, you will usually want to call ploaderRestartDevice.
- */
-PLOADER_RESULT ploaderWriteFlash(ploaderHandle * handle, const uint8_t * image, ploaderStatusCallback statusCallback);
+    PloaderInstance()
+    {
+    }
 
-/* ploaderReadImage:
- * Takes care of all the details of reading an app image from the flash on a device.
- * image must be a pointer to a memory block of the right size which will
- * be written to by this function.  This function takes care of getting the Wixel
- * in to bootloader mode (if needed) and reading the image. */
-PLOADER_RESULT ploaderReadFlash(ploaderHandle * handle, uint8_t * image, ploaderStatusCallback statusCallback);
+    PloaderInstance(const PloaderType type,
+        libusbp::generic_interface gi,
+        std::string serialNumber)
+        : type(type), serialNumber(serialNumber), usbInterface(gi)
+    {
+    }
 
-/* Just like ploaderWriteFlash, but for EEPROM instead */
-PLOADER_RESULT ploaderWriteEeprom(ploaderHandle * handle, const uint8_t * image, ploaderStatusCallback statusCallback);
+    operator bool()
+    {
+        return usbInterface;
+    }
 
-/* Just like ploaderReadFlash, but for EEPROM instead. */
-PLOADER_RESULT ploaderReadEeprom(ploaderHandle * handle, uint8_t * image, ploaderStatusCallback statusCallback);
+    libusbp::generic_interface usbInterface;
+};
 
-/* ploaderRestartDevice:
- * Sends the Restart command, which causes the device device to reset.
- * This is usually used to allow a newly-loaded application to start running. */
-PLOADER_RESULT ploaderRestartDevice(ploaderHandle * handle);
+/* Represents a high-level device type or device family that can be used in
+ * communications with the user. */
+class PloaderUserType
+{
+public:
 
-/* ploaderCheckApplication:
- * Asks the bootloader if the currently-loaded application is valid or not.
- * appValid should be a pointer to a boolean that can accept the result.
- * If this function succeeds, then *appValid will be set to true or false.
- */
-PLOADER_RESULT ploaderCheckApplication(ploaderHandle * handle, bool * appValid);
+    /* A lowercase name with no spaces that can be used for a command-line
+     * argument. */
+    const char * codeName;
 
-/* Closes the handle.  Passing in NULL is a no-op. */
-void ploaderClose(ploaderHandle * handle);
+    /* A friendly English name for the device type/family. */
+    const char * name;
 
-/* ploaderGetErrorDescription:
- * Returns an English string describing the specified error code.  This string can be
- * shown to the user.
- */
-const char * ploaderGetErrorDescription(PLOADER_RESULT result);
+    /* IDs of PloaderAppType and PloaderBootloaderType objects
+     * that belong to this type/family. */
+    std::vector<uint32_t> memberIds;
 
-#endif
+    std::vector<PloaderType> getMatchingTypes() const;
+    std::vector<PloaderAppType> getMatchingAppTypes() const;
+};
+
+extern const std::vector<PloaderUserType> ploaderUserTypes;
+
+const PloaderAppType * ploaderAppTypeLookup(uint16_t usbVendorId, uint16_t usbProductId);
+
+const PloaderType * ploaderTypeLookup(uint16_t usbVendorId, uint16_t usbProductId);
+
+const PloaderUserType * ploaderUserTypeLookup(std::string codeName);
+
+/** Detects all the known apps that are currently connected to the computer.  */
+std::vector<PloaderAppInstance> ploaderListApps();
+
+/** Detects all the known bootloaders that are currently connected to the
+ * computer.  */
+std::vector<PloaderInstance> ploaderListBootloaders();
+
+class PloaderStatusListener
+{
+public:
+    virtual void setStatus(const char * status,
+        uint32_t progress, uint32_t maxProgress) = 0;
+};
+
+class PloaderHandle
+{
+public:
+    PloaderHandle(PloaderInstance);
+
+    PloaderHandle() { }
+
+    operator bool() const noexcept { return handle; }
+
+    void close()
+    {
+        *this = PloaderHandle();
+    }
+
+    /** Sends a request to the bootloader to initialize a particular type of
+     * upload.  This is usually required before erasing or writing to flash. */
+    void initialize(uint16_t uploadType);
+
+    /** Calls initialize with some upload type that is known to work.  This is
+     * useful for users that don't care about the upload type because they just
+     * want to erase the device. */
+    void initialize();
+
+    /** Erases the entire application flash region. */
+    void eraseFlash();
+
+    /** Writes an arbitrary image to flash.  Before doing this,
+     * you will need to initialize and erase. */
+    void writeFlash(const uint8_t * image);
+
+    /** Takes care of all the details of reading an app image from the flash on
+     * a device.  image must be a pointer to a memory block of the right size which
+     * will be written to by this function.  This function takes care of getting the
+     * Wixel in to bootloader mode (if needed) and reading the image. */
+    void readFlash(uint8_t * image);
+
+    /** Erases the EEPROM (sets to 0xFF). **/
+    void eraseEeprom();
+
+    /** Just like writeFlash, but for EEPROM instead */
+    void writeEeprom(const uint8_t * image);
+
+    /** Just like readFlash, but for EEPROM instead. */
+    void readEeprom(uint8_t * image);
+
+    /** Sends the Restart command, which causes the device device to reset.  This is
+     * usually used to allow a newly-loaded application to start running. */
+    void restartDevice();
+
+    /** Asks the bootloader if the currently-loaded application is valid or not.
+     * Returns true if the application is valid. */
+    bool checkApplication();
+
+    /** Erases flash and performs any other steps needed to apply the firmware
+     * image to the device. */
+    void applyImage(const FirmwareArchive::Image & image);
+
+    PloaderType type;
+
+    void setStatusListener(PloaderStatusListener * listener)
+    {
+        this->listener = listener;
+    }
+
+private:
+    void writeFlashBlock(const uint32_t address, const uint8_t * data, size_t size);
+    void writeEepromBlock(const uint32_t address, const uint8_t * data, size_t size);
+    void eraseEepromFirstByte();
+
+    void reportError(const libusbp::error & error, std::string context)
+        __attribute__((noreturn));
+
+    PloaderStatusListener * listener;
+
+    libusbp::generic_handle handle;
+};
+

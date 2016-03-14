@@ -1,2 +1,0 @@
-SUBDIRS = src
-EXTRA_DIST = README.txt LICENSE.txt

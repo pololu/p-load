@@ -1,0 +1,29 @@
+#define VERSION             ${P_LOAD_VERSION_MAJOR},${P_LOAD_VERSION_MINOR},${P_LOAD_VERSION_PATCH},0
+#define VERSION_STR         "${P_LOAD_VERSION_MAJOR}.${P_LOAD_VERSION_MINOR}.${P_LOAD_VERSION_PATCH}"
+
+#include <winver.h>
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION VERSION
+PRODUCTVERSION VERSION
+FILEOS VOS_NT_WINDOWS32
+FILETYPE VFT_APP
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904E4"
+        BEGIN
+            VALUE "CompanyName", "Pololu Corporation"
+            VALUE "FileDescription", "Pololu USB Bootloader Utility"
+            VALUE "FileVersion", VERSION_STR
+            VALUE "ProductName", "Pololu USB Bootloader Utility (${CMAKE_BUILD_TYPE})"
+            VALUE "ProductVersion", VERSION_STR
+            VALUE "LegalCopyright", "Copyright (C) ${YEAR} Pololu Corporation"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1252
+    END
+END
+
