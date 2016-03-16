@@ -29,26 +29,51 @@
     <Property Id="ARPURLINFOABOUT">http://www.pololu.com/</Property>
     <Property Id="ARPHELPTELEPHONE">702-262-6648</Property>
 
-    <Icon Id="PololuIcon" SourceFile="pololu.ico" />
+    <Icon Id="PololuIcon" SourceFile="$(var.SourceDir)/windows-installer/app.ico" />
     <Property Id="ARPPRODUCTICON" Value="PololuIcon" />
 
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFilesFolder" Name="PFiles">
         <Directory Id="Pololu" Name="Pololu">
           <Directory Id="INSTALLDIR" Name="USB Bootloader Utility">
+            <Component Id="licenseHTML">
+              <File Id="licenseHTML" Name="LICENSE.html" Source="$(var.SourceDir)/LICENSE.html" />
+            </Component>
             <Directory Id="bin" Name="bin">
               <Component Id="MainExecutable" Guid="{AA5CD00E-5761-4A86-A803-74B4426CFF3C}">
-                <File Id="ploadEXE" Name="p-load.exe" Source="p-load.exe" />
-                <Environment Id="BinDirInPath" Name="PATH" Value="[INSTALLDIR]bin"
+                <File Id="ploadEXE" Name="p-load.exe" Source="$(var.BuildDir)/p-load.exe" />
+              </Component>
+              <Component Id="libwinpthread_1">
+                <File Id="libwinpthread_1" Name="libwinpthread-1.dll"
+                      Source="$(var.BuildDir)/msi_staging/libwinpthread-1.dll" />
+              </Component>
+              <Component Id="libstdcxx_6">
+                <File Id="libstdcxx_6" Name="libstdc++-6.dll"
+                      Source="$(var.BuildDir)/msi_staging/libstdc++-6.dll" />
+              </Component>
+              <Component Id="libgcc_s_dw2_1">
+                <File Id="libgcc_s_dw2_1" Name="libgcc_s_dw2-1.dll"
+                      Source="$(var.BuildDir)/msi_staging/libgcc_s_dw2-1.dll" />
+              </Component>
+              <Component Id="libusbp_1">
+                <File Id="libusbp1" Name="libusbp-1.dll"
+                      Source="$(var.BuildDir)/msi_staging/libusbp-1.dll" />
+              </Component>
+              <Component Id="ModifyPath">
+                <RegistryValue KeyPath="yes" Root="HKLM"
+                               Key="Software\[Manufacturer]\[ProductName]"
+                               Name="ModifyPath" Type="integer" Value="1" />
+                <Environment Id="ModifyPath" Name="PATH" Value="[INSTALLDIR]bin"
                              Permanent="no" Part="last" Action="set" System="yes" />
+                <Condition>MODIFYPATH=1</Condition>
               </Component>
             </Directory>
             <Directory Id="driversDir" Name="drivers">
-              <Component Id="bootloadersINF" Guid="{74AEB698-D2B1-4782-ADE8-D1919AB33148}">
-                <File Id="bootloadersINF" Name="pololu_usb_bootloader.inf" Source="../drivers/pololu_usb_bootloader.inf" />
+              <Component Id="bootloadersINF">
+                <File Id="bootloadersINF" Name="pololu-usb-bootloader2.inf" Source="$(var.SourceDir)/drivers/pololu-usb-bootloader2.inf" />
               </Component>
               <Component Id="pololuCAT">
-                <File Id="pololuCAT" Name="pololu.cat" Source="../drivers/pololu.cat" />
+                <File Id="pololuCAT" Name="pololu.cat" Source="$(var.SourceDir)/drivers/pololu.cat" />
               </Component>
             </Directory>
           </Directory>
@@ -61,33 +86,31 @@
              AllowAdvertise="no"
              ConfigurableDirectory="INSTALLDIR">
       <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="libwinpthread_1" />
+      <ComponentRef Id="libstdcxx_6" />
+      <ComponentRef Id="libgcc_s_dw2_1" />
+      <ComponentRef Id="libusbp_1" />
+      <ComponentRef Id="ModifyPath" />
     </Feature>
     <Feature Id="Drivers">
       <ComponentRef Id="bootloadersINF" />
       <ComponentRef Id="pololuCAT" />
-      <ComponentRef Id="pololuIconDLL" />
-      <ComponentRef Id="x86WDFCI" />
-      <ComponentRef Id="x86WinUsbCI" />
-      <ComponentRef Id="amd64WDFCI" />
-      <ComponentRef Id="amd64WinUsbCI" />
+    </Feature>
+    <Feature Id="License">
+      <ComponentRef Id="licenseHTML" />
     </Feature>
 
-    <Binary Id="InstallHelper" SourceFile="InstallHelper.dll" />
 
-    <CustomAction Id="InstallInf1" BinaryKey="InstallHelper" DllEntry="InstallInf"
+    <Binary Id="InstallHelper" SourceFile="$(var.BuildDir)/msi_staging/libusbp-install-helper-1.dll" />
+
+    <CustomAction Id="InstallInf1" BinaryKey="InstallHelper" DllEntry="libusbp_install_inf"
                   Impersonate="no" Execute="deferred" Return="check" />
     <CustomAction Id="InstallInf1.SetProperty"
-                  Property="InstallInf1" Value="[INSTALLDIR]drivers\pololu_usb_bootloader.inf" />
-    <CustomAction Id="BroadcastSettingChange" BinaryKey="InstallHelper" DllEntry="BroadcastSettingChange"
-                  Impersonate="yes" Execute="deferred" Return="check" />
+                  Property="InstallInf1" Value="[INSTALLDIR]drivers\pololu-usb-bootloader2.inf" />
 
     <Property Id="MODIFYPATH" Value="1" Secure="yes" />
 
     <InstallExecuteSequence>
-      <WriteEnvironmentStrings>MODIFYPATH=1</WriteEnvironmentStrings>
-      <RemoveEnvironmentStrings>MODIFYPATH=1</RemoveEnvironmentStrings>
-      <Custom Action="BroadcastSettingChange" Before="InstallFinalize">MODIFYPATH=1</Custom>
-
       <Custom Action="InstallInf1.SetProperty" After="InstallFiles">NOT Installed</Custom>
       <Custom Action="InstallInf1" After="InstallInf1.SetProperty">NOT Installed</Custom>
     </InstallExecuteSequence>
@@ -96,8 +119,8 @@
 
     <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
 
-    <WixVariable Id="WixUIBannerBmp" Value="setup_banner_wix.bmp" />
-    <WixVariable Id="WixUIDialogBmp" Value="setup_welcome_wix.bmp" />
+    <WixVariable Id="WixUIBannerBmp" Value="$(var.SourceDir)/windows-installer/setup_banner_wix.bmp" />
+    <WixVariable Id="WixUIDialogBmp" Value="$(var.SourceDir)/windows-installer/setup_welcome_wix.bmp" />
 
     <UIRef Id="WixUI_ErrorProgressText" />
     <UIRef Id="WixUI_Common" />

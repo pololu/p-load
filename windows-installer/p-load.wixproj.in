@@ -1,12 +1,17 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <ProductVersion>1.0.0</ProductVersion>
-    <DefineConstants>ProductVersion=$(ProductVersion)</DefineConstants>
+    <ProductVersion>@P_LOAD_VERSION@</ProductVersion>
+    <ProjectGuid>{FACDEEA0-F843-4ca7-8FCC-09A109CAAE85}</ProjectGuid>
+    <OutputName>p-load-$(ProductVersion)</OutputName>
+    <DefineConstants>
+      ProductVersion=$(ProductVersion);
+      SourceDir=@CMAKE_SOURCE_DIR@;
+      BuildDir=@CMAKE_BINARY_DIR@;
+      BinStagingDir=@CMAKE_BINARY_DIR@/msi_dlls;
+    </DefineConstants>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProjectGuid>{FACDEEA0-F843-4ca7-8FCC-09A109CAAE85}</ProjectGuid>
     <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>p-load-$(ProductVersion)</OutputName>
     <OutputType>Package</OutputType>
     <DefineSolutionProperties>false</DefineSolutionProperties>
     <WixTargetsPath Condition=" '$(WixTargetsPath)' == '' ">$(MSBuildExtensionsPath)\Microsoft\WiX\v3.x\Wix.targets</WixTargetsPath>
@@ -21,8 +26,8 @@
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="p-load.wxs" />
-    <EmbeddedResource Include="en-us.wxl" />
+    <Compile Include="@CMAKE_CURRENT_SOURCE_DIR@/p-load.wxs" />
+    <EmbeddedResource Include="@CMAKE_CURRENT_SOURCE_DIR@/en-us.wxl" />
     <WixExtension Include="WixUIExtension" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />

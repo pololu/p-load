@@ -61,6 +61,11 @@ if (APPLE)
   add_subdirectory (mac-installer)
 endif ()
 
+if (WIN32)
+  add_subdirectory (windows-installer)
+endif ()
+
 if (NOT USE_SYSTEM_TINYXML2)
   add_subdirectory (tinyxml2)
 endif ()
+

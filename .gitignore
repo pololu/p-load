@@ -13,6 +13,7 @@ Release
 p-load.exe
 
 # Windows installer
+app.ico
 pololu.ico
 setup_banner_wix.bmp
 setup_welcome_wix.bmp
