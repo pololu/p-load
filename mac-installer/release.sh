@@ -18,7 +18,7 @@ PATH=$PATH:`dirname $0`  # so we can run other scripts in the same directory
 rm -rf "$RESDIR"
 mkdir -p "$RESDIR"
 
-cp mac-installer/readme.html "$RESDIR"
+cp mac-installer/welcome.html "$RESDIR"
 
 rm -rf "$STAGINGDIR"
 mkdir -p "$BINDIR"
