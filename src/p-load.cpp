@@ -1,5 +1,10 @@
 /* Main source file for p-load, the Pololu USB Bootloader Utility. */
 
+// TODO: don't just finish silently when the user specifies -t or -d
+// TODO: make --wait work well with --list
+// TODO: better error message for: p-load -t p-star -w pgm04a-v1.00.fmi (when both are present)
+// TODO: better error message for: p-load -d 00151206 -w pgm04a-v1.00.fmi (when both are present)
+
 #include "p-load.h"
 
 static const char help[] =
