@@ -116,7 +116,7 @@
 
     <InstallExecuteSequence>
       <Custom Action="BroadcastSettingChange" Before="InstallFinalize">MODIFYPATH=1</Custom>
-      <Custom Action="InstallInf1.SetProperty" After="InstallFiles">1</Custom>
+      <Custom Action="InstallInf1.SetProperty" After="InstallFiles" />
       <Custom Action="InstallInf1" After="InstallInf1.SetProperty">(NOT Installed) OR REINSTALLMODE</Custom>
     </InstallExecuteSequence>
 
