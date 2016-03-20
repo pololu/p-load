@@ -1,7 +1,5 @@
 /* Main source file for p-load, the Pololu USB Bootloader Utility. */
 
-// TODO: better error message for: p-load -d 00151206 -w pgm04a-v1.00.fmi (when both are present)
-
 #include "p-load.h"
 
 static const char help[] =
