@@ -1,6 +1,5 @@
 /* Main source file for p-load, the Pololu USB Bootloader Utility. */
 
-// TODO: don't just finish silently when the user specifies -t or -d
 // TODO: make --wait work well with --list
 // TODO: better error message for: p-load -t p-star -w pgm04a-v1.00.fmi (when both are present)
 // TODO: better error message for: p-load -d 00151206 -w pgm04a-v1.00.fmi (when both are present)
@@ -69,10 +68,26 @@ static bool pauseOnErrorFlag = false;
 // operating on.
 static bool deviceInfoPrinted = false;
 
+// Returns true if we actually want to get to the state where a bootloader is
+// connected to the computer and we have selected it.
 static bool bootloaderHandleNeeded()
 {
     return startBootloaderFlag ||
         restartBootloaderFlag ||
+        actions.size() > 0;
+}
+
+// Returns true if some sort of action was specified on the command line.
+static bool someCommandSpecified()
+{
+    return showHelpFlag ||
+        listDevicesFlag ||
+        listSupportedFlag ||
+        startBootloaderFlag ||
+        waitForBootloaderFlag ||
+        restartBootloaderFlag ||
+        pauseFlag ||
+        pauseOnErrorFlag ||
         actions.size() > 0;
 }
 
@@ -546,6 +561,12 @@ void parseArgs(int argc, char ** argv)
             throw ExceptionWithExitCode(PLOAD_ERROR_BAD_ARGS,
                 std::string("Unknown option: '") + arg + "'.");
         }
+    }
+
+    if (!someCommandSpecified())
+    {
+        throw ExceptionWithExitCode(PLOAD_ERROR_BAD_ARGS,
+            "Arguments do not specify anything to do.");
     }
 }
 
