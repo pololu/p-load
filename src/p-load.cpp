@@ -1,6 +1,5 @@
 /* Main source file for p-load, the Pololu USB Bootloader Utility. */
 
-// TODO: make --wait work well with --list
 // TODO: better error message for: p-load -t p-star -w pgm04a-v1.00.fmi (when both are present)
 // TODO: better error message for: p-load -d 00151206 -w pgm04a-v1.00.fmi (when both are present)
 
@@ -582,6 +581,10 @@ static void run(int argc, char ** argv)
 
     if (listDevicesFlag)
     {
+        if (waitForBootloaderFlag)
+        {
+            waitForBootloader();
+        }
         listDevices();
         return;
     }
