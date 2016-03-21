@@ -1,3 +1,5 @@
+<!-- TODO: why is the PATH not getting updated on Windows 10? -->
+
 <!-- This is source code for the Windows installer.
      If you are NOT part of Pololu Corporation and you are using this file to
      make an installer, PLEASE change all the GUIDs, remove all mentions of Pololu,
@@ -103,6 +105,10 @@
 
     <Binary Id="InstallHelper" SourceFile="$(var.BuildDir)/msi_staging/libusbp-install-helper-1.dll" />
 
+    <CustomAction Id="BroadcastSettingChange" BinaryKey="InstallHelper"
+                  DllEntry="libusbp_broadcast_setting_change"
+                  Impersonate="yes" Execute="deferred" Return="check" />
+
     <CustomAction Id="InstallInf1" BinaryKey="InstallHelper" DllEntry="libusbp_install_inf"
                   Impersonate="no" Execute="deferred" Return="check" />
     <CustomAction Id="InstallInf1.SetProperty"
@@ -111,8 +117,9 @@
     <Property Id="MODIFYPATH" Value="1" Secure="yes" />
 
     <InstallExecuteSequence>
-      <Custom Action="InstallInf1.SetProperty" After="InstallFiles">NOT Installed</Custom>
-      <Custom Action="InstallInf1" After="InstallInf1.SetProperty">NOT Installed</Custom>
+      <Custom Action="InstallInf1.SetProperty" After="InstallFiles" />
+      <Custom Action="InstallInf1" After="InstallInf1.SetProperty">(NOT Installed) OR REINSTALLMODE</Custom>
+      <Custom Action="BroadcastSettingChange" Before="InstallFinalize" />
     </InstallExecuteSequence>
 
     <!-- User interface -->

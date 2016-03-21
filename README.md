@@ -43,6 +43,11 @@ by Lee Thomason (www.grinninglizard.com).
 
 * 2.0.0:
     * Added support for the Pololu USB AVR Programmer v2.
+    * Changed the included Windows driver so that devices show up in the
+      "Universal Serial Bus devices" category instead of "Pololu USB Devices."
+    * New library dependencies: libusbp-1 and libtinyxml2.
+    * Mac OS X versions older than 10.11 are no longer supported, because
+      libusbp-1 does not support them.
     * Added support for Pololu Firmware Image Archive Files (FMI files).
     * Added commas to the output of `--list` to make it easier to parse.
     * Added `--pause` and `--pause-on-error` options, which makes it easier
@@ -51,8 +56,6 @@ by Lee Thomason (www.grinninglizard.com).
     * Output files are now only opened after all the data to be written is available.
     * Output files can now be written to the standard output.
     * Input files can now be read from the standard input.
-    * New library dependencies: libusbp and libtinyxml2.
-    * Removed the USB abstraction layer in favor of libusbp.
     * Switched from C to C++ and rewrote most of the code.
     * Dropped support for autotools and Visual Studio in favor CMake,
       MSYS2, and mingw-w64.

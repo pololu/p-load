@@ -39,6 +39,8 @@ private:
     std::string serialNumber;
 
     bool typesSpecified;
+    bool userTypeSpecified;
+    bool firmwareDataSpecified;
     std::vector<PloaderAppType> appTypes;
     std::vector<PloaderType> bootloaderTypes;
 

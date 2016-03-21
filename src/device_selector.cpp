@@ -5,6 +5,8 @@ DeviceSelector::DeviceSelector()
 {
     serialNumberSpecified = false;
     typesSpecified = false;
+    firmwareDataSpecified = false;
+    userTypeSpecified = false;
     appListInitialized = false;
     bootloaderListInitialized = false;
 }
@@ -30,6 +32,19 @@ void DeviceSelector::specifyFirmwareData(const FirmwareData & data)
 
     if (data.firmwareArchiveData)
     {
+        if (userTypeSpecified)
+        {
+            // Types were already specified by the user, so we should not infer
+            // bootloader/app types from the firmware archive.  Adding to the
+            // set of allowed bootloaders or apps here would be bad because it
+            // diminishes the control that specifyUserType ("-t") has.
+            // Restricting the set of allowed apps might be OK, but I don't
+            // see why it would be needed.
+            // Restricting the set of allowed bootloaders might be OK, but that
+            // will get checked later before we do anything to the bootloader.
+            return;
+        }
+
         for (const FirmwareArchive::Image & image : data.firmwareArchiveData.images)
         {
             uint16_t usbVendorId = image.usbVendorId;
@@ -45,6 +60,7 @@ void DeviceSelector::specifyFirmwareData(const FirmwareData & data)
             }
         }
         typesSpecified = true;
+        firmwareDataSpecified = true;
     }
 }
 
@@ -54,6 +70,11 @@ void DeviceSelector::specifyUserType(const PloaderUserType & userType)
     assert(!appSelected && !app);
     assert(!bootloader);
     assert(!bootloaderListInitialized);
+
+    // This assertion is required by the logic in specifyFirmwareData.
+    // Eventually, it would be nicer to refactor things to allow user types and
+    // firmware data to be specified in any order.
+    assert(!firmwareDataSpecified);
 
     // It is fine for to specifiy multiple high-level types.  The sets of types
     // get added together rather than taking an intersection.  This behavior
@@ -72,6 +93,7 @@ void DeviceSelector::specifyUserType(const PloaderUserType & userType)
     }
 
     typesSpecified = true;
+    userTypeSpecified = true;
 }
 
 bool DeviceSelector::serialNumberWasSpecified() const

@@ -64,10 +64,26 @@ static bool pauseOnErrorFlag = false;
 // operating on.
 static bool deviceInfoPrinted = false;
 
+// Returns true if we actually want to get to the state where a bootloader is
+// connected to the computer and we have selected it.
 static bool bootloaderHandleNeeded()
 {
     return startBootloaderFlag ||
         restartBootloaderFlag ||
+        actions.size() > 0;
+}
+
+// Returns true if some sort of action was specified on the command line.
+static bool someCommandSpecified()
+{
+    return showHelpFlag ||
+        listDevicesFlag ||
+        listSupportedFlag ||
+        startBootloaderFlag ||
+        waitForBootloaderFlag ||
+        restartBootloaderFlag ||
+        pauseFlag ||
+        pauseOnErrorFlag ||
         actions.size() > 0;
 }
 
@@ -542,6 +558,12 @@ void parseArgs(int argc, char ** argv)
                 std::string("Unknown option: '") + arg + "'.");
         }
     }
+
+    if (!someCommandSpecified())
+    {
+        throw ExceptionWithExitCode(PLOAD_ERROR_BAD_ARGS,
+            "Arguments do not specify anything to do.");
+    }
 }
 
 static void run(int argc, char ** argv)
@@ -556,6 +578,10 @@ static void run(int argc, char ** argv)
 
     if (listDevicesFlag)
     {
+        if (waitForBootloaderFlag)
+        {
+            waitForBootloader();
+        }
         listDevices();
         return;
     }

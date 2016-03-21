@@ -11,7 +11,7 @@ RESDIR="mac_resources"
 APPDIR="$STAGINGDIR/Pololu USB Bootloader Utility"
 BINDIR="$APPDIR/bin"
 PATHDIR="$STAGINGDIR/path"
-PKG="p-load-$VERSION.pkg"
+PKG="p-load-$VERSION-mac.pkg"
 
 PATH=$PATH:`dirname $0`  # so we can run other scripts in the same directory
 

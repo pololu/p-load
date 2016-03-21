@@ -177,7 +177,8 @@ public:
 };
 
 /* Represents a high-level device type or device family that can be used in
- * communications with the user. */
+ * communications with the user.  Each "user type" can correspond to multiple
+ * specific app types and bootloader types.  */
 class PloaderUserType
 {
 public:
