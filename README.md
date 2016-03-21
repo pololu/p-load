@@ -1,7 +1,7 @@
 # Pololu USB Bootloader Utility (p-load)
 
 Version: 2.0.0<br/>
-Release date: TBD<br/>
+Release date: 2016 Mar 21<br/>
 [www.pololu.com](https://www.pololu.com/)
 
 The Pololu USB Bootloader Utility is a command-line program that
@@ -41,7 +41,7 @@ by Lee Thomason (www.grinninglizard.com).
 
 ## Version history
 
-* 2.0.0:
+* 2.0.0 (2016 Mar 21):
     * Added support for the Pololu USB AVR Programmer v2.
     * Changed the included Windows driver so that devices show up in the
       "Universal Serial Bus devices" category instead of "Pololu USB Devices."
