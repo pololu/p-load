@@ -2,7 +2,7 @@
   <PropertyGroup>
     <ProductVersion>@P_LOAD_VERSION@</ProductVersion>
     <ProjectGuid>{FACDEEA0-F843-4ca7-8FCC-09A109CAAE85}</ProjectGuid>
-    <OutputName>p-load-$(ProductVersion)</OutputName>
+    <OutputName>p-load-$(ProductVersion)-win</OutputName>
     <DefineConstants>
       ProductVersion=$(ProductVersion);
       SourceDir=@CMAKE_SOURCE_DIR@;
