@@ -1,7 +1,8 @@
 use_cxx11()
 
 pkg_check_modules(LIBUSBP REQUIRED libusbp-1)
-STRING(REPLACE ";" " " LIBUSBP_LDFLAGS "${LIBUSBP_LDFLAGS}")
+string (REPLACE ";" " " LIBUSBP_CFLAGS "${LIBUSBP_CFLAGS}")
+string (REPLACE ";" " " LIBUSBP_LDFLAGS "${LIBUSBP_LDFLAGS}")
 
 if (USE_SYSTEM_TINYXML2)
   pkg_check_modules(TINYXML2 REQUIRED tinyxml2)
