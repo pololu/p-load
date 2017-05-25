@@ -350,8 +350,23 @@ void PloaderHandle::initialize(uint16_t uploadType)
 {
     if (type.deviceCode != NULL)
     {
-        handle.control_transfer(0x40, REQUEST_SET_DEVICE_CODE, 0, 0,
-            (void *)type.deviceCode, DEVICE_CODE_SIZE);
+        // The device code might be stored in read-only memory, which can cause
+        // WinUSB to give error code 0x3e6 when we try to send it over USB.
+        // Copy it to the stack.
+        uint8_t b[DEVICE_CODE_SIZE];
+        memcpy(b, type.deviceCode, DEVICE_CODE_SIZE);
+
+        try
+        {
+            handle.control_transfer(0x40, REQUEST_SET_DEVICE_CODE, 0, 0,
+                (void *)b, DEVICE_CODE_SIZE);
+        }
+        catch(const libusbp::error & error)
+        {
+            throw std::runtime_error(
+                std::string("Failed to send device code: ") +
+                error.message());
+        }
     }
 
     try
