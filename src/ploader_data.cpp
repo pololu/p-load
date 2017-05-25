@@ -27,7 +27,7 @@ const std::vector<PloaderAppType> ploaderAppTypes = {
         /* id */ ID_TIC_APP,
         /* usbVendorId */ 0x1FFB,
         /* usbProductId */ 0x00B3,
-        /* name */ "Pololu Tic", // TODO
+        /* name */ "Pololu Tic T825",
         /* composite */ false,
         /* interfaceNumber */ 0,
     },
