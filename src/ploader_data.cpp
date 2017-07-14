@@ -27,7 +27,7 @@ const std::vector<PloaderAppType> ploaderAppTypes = {
         /* id */ ID_TIC_APP,
         /* usbVendorId */ 0x1FFB,
         /* usbProductId */ 0x00B3,
-        /* name */ "Pololu Tic T825",
+        /* name */ "Tic T825 Stepper Motor Controller",
         /* composite */ false,
         /* interfaceNumber */ 0,
     },
@@ -84,7 +84,7 @@ const std::vector<PloaderType> ploaderTypes = {
         /* id */ ID_TIC_BOOTLOADER,
         /* usbVendorId */ 0x1FFB,
         /* usbProductId */ 0x00B2,
-        /* name */ "Pololu Tic T825 Bootloader",
+        /* name */ "Tic T825 Bootloader",
         /* appAddress */ 0x2000,
         /* appSize */ 0x6000,
         /* writeBlockSize */ 0x40,
@@ -138,7 +138,7 @@ const std::vector<PloaderUserType> ploaderUserTypes = {
     },
     {
         /* codeName */ "tic",
-        /* name */ "Pololu Tic",
+        /* name */ "Tic Stepper Motor Controller",
         /* memberIds */ { ID_TIC_BOOTLOADER, ID_TIC_APP },
     },
 #ifndef NDEBUG
