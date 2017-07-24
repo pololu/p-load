@@ -29,6 +29,9 @@ set (P_LOAD_VERSION_PATCH 0)
 
 set (P_LOAD_VERSION ${P_LOAD_VERSION_MAJOR}.${P_LOAD_VERSION_MINOR}.${P_LOAD_VERSION_PATCH})
 
+# Don't use -rdynamic since it causes musl static linking to not work.
+cmake_policy(SET CMP0065 NEW)
+
 if (CMAKE_VERSION VERSION_GREATER "2.8.10")
   string(TIMESTAMP YEAR "%Y")
 endif ()
