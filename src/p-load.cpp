@@ -82,8 +82,6 @@ static bool someCommandSpecified()
         startBootloaderFlag ||
         waitForBootloaderFlag ||
         restartBootloaderFlag ||
-        pauseFlag ||
-        pauseOnErrorFlag ||
         actions.size() > 0;
 }
 
