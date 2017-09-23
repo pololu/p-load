@@ -1,8 +1,5 @@
 #include "p-load.h"
 #include <tinyxml2.h>
-// TODO: consider just bundling tinyxml2 with the app, since that would be
-// one less step for our users to worry about, and Arch Linux doesn't even
-// have a package for tinyxml2
 
 #define USB_VENDOR_ID_POLOLU 0x1FFB
 
@@ -229,6 +226,10 @@ void FirmwareArchive::Data::processXml(std::string string)
 
     // Check the FirmwareArchive element.
     tinyxml2::XMLElement * root = doc.RootElement();
+    if (root == NULL)
+    {
+        throw std::runtime_error("There is no root element.");
+    }
     if (std::string(root->Name()) != "FirmwareArchive")
     {
         throw std::runtime_error("The root element has an invalid name.");
