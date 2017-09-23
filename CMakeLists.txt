@@ -16,7 +16,7 @@ set(USE_SYSTEM_TINYXML2 FALSE CACHE BOOL
 macro(use_cxx11)
   if (CMAKE_VERSION VERSION_LESS "3.1")
     if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-      set (CMAKE_CXX_FLAGS "--std=gnu++0x ${CMAKE_CXX_FLAGS}")
+      set (CMAKE_CXX_FLAGS "-std=gnu++0x ${CMAKE_CXX_FLAGS}")
     endif ()
   else ()
     set (CMAKE_CXX_STANDARD 11)
