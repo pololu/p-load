@@ -1,7 +1,7 @@
 # Pololu USB Bootloader Utility (p-load)
 
-Version: 2.1.0<br/>
-Release date: 2017-07-15<br/>
+Version: 2.2.0<br/>
+Release date: 2017-11-02<br/>
 [www.pololu.com](https://www.pololu.com/)
 
 The Pololu USB Bootloader Utility is a command-line program that
@@ -42,6 +42,9 @@ by Lee Thomason (www.grinninglizard.com).
 
 ## Version history
 
+* 2.2.0 (2017-11-02):
+  * Added support for the Tic T834 Stepper Motor Controller.
+  * Fixed some minor bugs.
 * 2.1.0 (2017-07-13): Added support for the Tic T825 Stepper Motor Controller.
 * 2.0.1 (2016-05-05): Fixed a problem with the Mac OS X release that prevented
   it from finding libusbp at run-time.
