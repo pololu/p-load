@@ -1,4 +1,20 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 2.8.11)
+
+# Fix behavior of CMAKE_CXX_STANDARD when targeting macOS.
+if (POLICY CMP0025)
+  cmake_policy(SET CMP0025 NEW)
+endif ()
+
+# Fix a warning on Mac OS X.
+if (POLICY CMP0042)
+  cmake_policy(SET CMP0042 NEW)
+endif ()
+
+# Don't use -rdynamic since it breaks causes musl static linking.
+if (POLICY CMP0065)
+  cmake_policy(SET CMP0065 NEW)
+endif ()
+
 project (p-load)
 
 find_package(PkgConfig)
@@ -16,7 +32,7 @@ set(USE_SYSTEM_TINYXML2 FALSE CACHE BOOL
 macro(use_cxx11)
   if (CMAKE_VERSION VERSION_LESS "3.1")
     if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-      set (CMAKE_CXX_FLAGS "--std=gnu++0x ${CMAKE_CXX_FLAGS}")
+      set (CMAKE_CXX_FLAGS "-std=gnu++0x ${CMAKE_CXX_FLAGS}")
     endif ()
   else ()
     set (CMAKE_CXX_STANDARD 11)
@@ -28,9 +44,6 @@ set (P_LOAD_VERSION_MINOR 2)
 set (P_LOAD_VERSION_PATCH 0)
 
 set (P_LOAD_VERSION ${P_LOAD_VERSION_MAJOR}.${P_LOAD_VERSION_MINOR}.${P_LOAD_VERSION_PATCH})
-
-# Don't use -rdynamic since it causes musl static linking to not work.
-cmake_policy(SET CMP0065 NEW)
 
 if (CMAKE_VERSION VERSION_GREATER "2.8.10")
   string(TIMESTAMP YEAR "%Y")
