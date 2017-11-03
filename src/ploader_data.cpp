@@ -4,6 +4,7 @@ enum PloaderTypeIds
 {
     ID_NONE = 0,
     ID_P_STAR_25K50_BOOTLOADER,
+    ID_P_STAR_45K50_BOOTLOADER,
     ID_PGM04A_BOOTLOADER,
     ID_PGM04A_APP,
     ID_TIC_T825_BOOTLOADER,
@@ -70,7 +71,25 @@ const std::vector<PloaderType> ploaderTypes = {
         /* eepromSize */ 0x100,
         /* supportsEepromAccess */ true,
         /* deviceCode */ NULL,
-        /* matchingAppTypes */ {},
+        /* matchingAppTypes */ { },
+    },
+    {
+        /* id */ ID_P_STAR_45K50_BOOTLOADER,
+        /* usbVendorId */ 0x1FFB,
+        /* usbProductId */ 0x0103,
+        /* name */ "Pololu P-Star 45K50 Bootloader",
+        /* appAddress */ 0x2000,
+        /* appSize */ 0x6000,
+        /* writeBlockSize */ 0x40,
+        /* erasingFlashAffectsEeprom */ false,
+        /* supportsFlashPlainWriting */ true,
+        /* supportsFlashReading */ true,
+        /* eepromAddress */ 0,
+        /* eepromAddressHexFile */ 0xF00000,
+        /* eepromSize */ 0x100,
+        /* supportsEepromAccess */ true,
+        /* deviceCode */ NULL,
+        /* matchingAppTypes */ { },
     },
     {
         /* id */ ID_PGM04A_BOOTLOADER,
@@ -152,12 +171,17 @@ const std::vector<PloaderUserType> ploaderUserTypes = {
     {
         /* codeName */ "p-star",
         /* name */ "Pololu P-Star",
-        /* memberIds */ { ID_P_STAR_25K50_BOOTLOADER },
+        /* memberIds */ { ID_P_STAR_25K50_BOOTLOADER, ID_P_STAR_45K50_BOOTLOADER },
     },
     {
         /* codeName */ "p-star-25k50",
         /* name */ "Pololu P-Star 25K50",
         /* memberIds */ { ID_P_STAR_25K50_BOOTLOADER },
+    },
+    {
+        /* codeName */ "p-star-45k50",
+        /* name */ "Pololu P-Star 45K50",
+        /* memberIds */ { ID_P_STAR_45K50_BOOTLOADER },
     },
     {
         /* codeName */ "pgm04a",
