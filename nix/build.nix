@@ -11,7 +11,7 @@ let
 
   license = env.native.make_derivation {
     name = "license";
-    builder.ruby = ./nix/license_builder.rb;
+    builder.ruby = ./license_builder.rb;
     inherit src;
     commit = builtins.getEnv "commit";
     nixcrpkgs_commit = builtins.getEnv "nixcrpkgs_commit";
@@ -28,6 +28,7 @@ let
       else if env.os == "macos" then ./macos_installer_builder.rb
       else throw "?";
     inherit src config_name payload license;
+    libusbp = env.libusbp;
   };
 
 in

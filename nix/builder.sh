@@ -7,3 +7,5 @@ make
 make install
 
 $host-strip $out/bin/*
+
+cp version.txt $out/
