@@ -3,13 +3,17 @@ rec {
 
   src = nixcrpkgs.filter ./.;
 
-  build = env: env.make_derivation {
-    builder = ./nix/builder.sh;
-    inherit src;
-    cross_inputs = [ env.libusbp ];
-  };
+  build = (import ./nix/build.nix) src;
 
-  win32 = build nixcrpkgs.win32;
-  linux-x86 = build nixcrpkgs.linux-x86;
-  linux-rpi = build nixcrpkgs.linux-rpi;
+  win32 = build "win" nixcrpkgs.win32;
+  linux-x86 = build "linux-x86" nixcrpkgs.linux-x86;
+  linux-rpi = build "linux-rpi" nixcrpkgs.linux-rpi;
+  macos = build "macos" nixcrpkgs.macos;
+
+  installers = nixcrpkgs.bundle {
+    win32 = win32.installer;
+    linux-x86 = linux-x86.installer;
+    linux-rpi = linux-rpi.installer;
+    macos = macos.installer;
+  };
 }
