@@ -1,7 +1,7 @@
 # Pololu USB Bootloader Utility (p-load)
 
-Version: 2.2.0<br/>
-Release date: 2017-11-02<br/>
+Version: 2.3.0<br/>
+Release date: 2017-11-10<br/>
 [www.pololu.com](https://www.pololu.com/)
 
 The Pololu USB Bootloader Utility is a command-line program that
@@ -11,8 +11,10 @@ products over USB using their USB bootloaders.
 This utility currently supports the following products:
 
   * P-Star 25K50 Micro
+  * P-Star 45K50 Micro
   * Pololu USB AVR Programmer v2
   * Tic T825 Stepper Motor Controller
+  * Tic T834 Stepper Motor Controller
 
 To get a help screen showing the available command-line arguments,
 run `p-load --help` at a command prompt.
@@ -42,6 +44,8 @@ by Lee Thomason (www.grinninglizard.com).
 
 ## Version history
 
+* 2.3.0 (2017-11-10):
+  * Added support for the P-Star 45K50 Bootloader.
 * 2.2.0 (2017-11-02):
   * Added support for the Tic T834 Stepper Motor Controller.
   * Fixed some minor bugs.
