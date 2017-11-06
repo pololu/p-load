@@ -9,7 +9,7 @@ OutDir = Pathname(ENV.fetch('out'))
 PayloadDir = Pathname(ENV.fetch('payload'))
 SrcDir = Pathname(ENV.fetch('src'))
 Version = File.read(PayloadDir + 'version.txt')
-TarName = "pololu-tic-#{Version}-#{ConfigName}"
+TarName = "p-load-#{Version}-#{ConfigName}"
 StagingDir = Pathname(TarName)
 OutTar = OutDir + "#{TarName}.tar.xz"
 
