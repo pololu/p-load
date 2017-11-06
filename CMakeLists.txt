@@ -73,10 +73,6 @@ file(WRITE "${CMAKE_BINARY_DIR}/version.txt" "${P_LOAD_VERSION}")
 
 add_subdirectory (src)
 
-if (APPLE)
-  add_subdirectory (mac-installer)
-endif ()
-
 if (NOT USE_SYSTEM_TINYXML2)
   add_subdirectory (tinyxml2)
 endif ()
