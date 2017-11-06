@@ -6,6 +6,11 @@ cmake-cross $src \
 make
 make install
 
-$host-strip $out/bin/*
+# TODO: Temporary workaround: nixcrpkgs provides a bad strip utility that makes the
+# program fail at runtime.
+if [ "$os" != "macos" ]; then
+  echo stripping
+  $host-strip $out/bin/*
+fi
 
 cp version.txt $out/
