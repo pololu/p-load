@@ -11,7 +11,7 @@ products over USB using their USB bootloaders.
 This utility currently supports the following products:
 
   * P-Star 25K50 Micro
-  * P-Star 45K50 Micro
+  * P-Star 45K50 Mini
   * Pololu USB AVR Programmer v2
   * Tic T825 Stepper Motor Controller
   * Tic T834 Stepper Motor Controller
