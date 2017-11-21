@@ -9,7 +9,7 @@ let
 
   license_set = env.libusbp.license_set // env.global_license_set;
 
-  license = env.native.make_derivation {
+  license = env.make_derivation {
     name = "license";
     builder.ruby = ./license_builder.rb;
     inherit src;
