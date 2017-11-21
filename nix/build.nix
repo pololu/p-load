@@ -32,4 +32,4 @@ let
   };
 
 in
-  payload // { inherit license installer; }
+  payload // { inherit env license installer; }
