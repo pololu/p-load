@@ -76,25 +76,25 @@ set -ue
 
 strip "release/Pololu USB Bootloader Utility/bin/p-load"
 
-pkgbuild \
-  --identifier com.pololu.p-load.app \
-  --version "#{Version}" \
-  --root "release/" \
-  --install-location /Applications \
+pkgbuild \\
+  --identifier com.pololu.p-load.app \\
+  --version "#{Version}" \\
+  --root "release/" \\
+  --install-location /Applications \\
   app.pkg
 
-pkgbuild \
-  --identifier com.pololu.p-load.path \
-  --version "#{Version}" \
-  --root "path/" \
-  --install-location /etc/paths.d \
+pkgbuild \\
+  --identifier com.pololu.p-load.path \\
+  --version "#{Version}" \\
+  --root "path/" \\
+  --install-location /etc/paths.d \\
   path.pkg
 
-productbuild \
-  --identifier com.pololu.p-load \
-  --version "#{Version}" \
-  --resources "resources/" \
-  --distribution distribution.xml \
+productbuild \\
+  --identifier com.pololu.p-load \\
+  --version "#{Version}" \\
+  --resources "resources/" \\
+  --distribution distribution.xml \\
   "p-load-#{Version}-mac.pkg"
 EOF
 end
