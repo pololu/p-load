@@ -194,10 +194,7 @@ static bool launchBootloaderIfNeeded()
 
     app.launchBootloader();
 
-    if (output.shouldPrintInfo())
-    {
-        std::cout << "Sent command to start bootloader." << std::endl;
-    }
+    output.printInfo("Sent command to start bootloader.");
 
     return true;
 }
@@ -225,10 +222,7 @@ static void waitForBootloader()
         return;
     }
 
-    if (output.shouldPrintInfo())
-    {
-        std::cout << "Waiting for bootloader..." << std::endl;
-    }
+    output.printInfo("Waiting for bootloader...");
 
     time_t waitStartTime = time(NULL);
 
@@ -264,11 +258,7 @@ static void waitForBootloader()
 static void restartBootloader(PloaderHandle & handle)
 {
     handle.restartDevice();
-
-    if (output.shouldPrintInfo())
-    {
-        std::cout << "Sent command to restart device." << std::endl;
-    }
+    output.printInfo("Sent command to restart device.");
 }
 
 /* Every Action represents a read or write from memory on the bootloader.

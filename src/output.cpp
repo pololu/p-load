@@ -1,13 +1,8 @@
-// TODO: Fix it so that 'Sent command to restart device.' does not get put on
-// the same line as the progress bar.  A customer sent us a screenshot showing
-// "Writing flash..." followed by an empty progress bar with that that message
-// on the same line.  It would also be good to figure out why that progress bar
-// is empty.
-
 #include "output.h"
 
 Output::Output()
 {
+    // TODO: get this to work in MSYS2 shells
     printInfoFlag = isatty(fileno(stdout));
     currentLineHasBar = false;
 }
@@ -58,4 +53,11 @@ void Output::setStatus(const char * status, uint32_t progress, uint32_t maxProgr
             std::cout << std::flush;
         }
     }
+}
+
+void Output::printInfo(const char * message)
+{
+  if (!shouldPrintInfo()) { return; }
+  startNewLine();
+  std::cout << message << std::endl;
 }

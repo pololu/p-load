@@ -13,6 +13,7 @@ public:
     void startNewLine();
     bool shouldPrintInfo();
     void setStatus(const char * status, uint32_t progress, uint32_t maxProgress);
+    void printInfo(const char *);
 
 private:
     bool printInfoFlag;
