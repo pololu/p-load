@@ -121,8 +121,10 @@ static void processLine(std::istream & file,
         throw std::runtime_error(message.str());
     }
 
-    // Check for extra stuff at the end of the line.
-    if (lineStream.get() != EOF)
+    // Check for extra stuff at the end of the line, ignoring carriage returns.
+    int extra;
+    do { extra = lineStream.get(); } while (extra == '\r');
+    if (extra != EOF)
     {
         throw std::runtime_error("Extra data after checksum.");
     }
