@@ -47,6 +47,7 @@ by Lee Thomason (www.grinninglizard.com).
 * 2.3.1 (2017-12-17):
   * Fixed a bug that prevented p-load from reading HEX files with Windows line
     endings on Linux or macOS.
+  * Fixed some issues with the console output.
 * 2.3.0 (2017-11-10):
   * Added support for the P-Star 45K50 Bootloader.
 * 2.2.0 (2017-11-02):
