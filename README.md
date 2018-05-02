@@ -1,7 +1,7 @@
 # Pololu USB Bootloader Utility (p-load)
 
-Version: 2.3.1<br/>
-Release date: 2017-12-17<br/>
+Version: 2.4.0<br/>
+Release date: 2018-05-02<br/>
 [www.pololu.com](https://www.pololu.com/)
 
 The Pololu USB Bootloader Utility is a command-line program that
@@ -13,8 +13,14 @@ This utility currently supports the following products:
   * P-Star 25K50 Micro
   * P-Star 45K50 Mini
   * Pololu USB AVR Programmer v2
+  * Pololu USB AVR Programmer v2.1
   * Tic T825 Stepper Motor Controller
   * Tic T834 Stepper Motor Controller
+  * Tic T500 Stepper Motor Controller
+  * Jrk G2 18v19
+  * Jrk G2 24v13
+  * Jrk G2 18v27
+  * Jrk G2 24v21
 
 To get a help screen showing the available command-line arguments,
 run `p-load --help` at a command prompt.
@@ -22,13 +28,11 @@ run `p-load --help` at a command prompt.
 
 ## Installation
 
-Installers for Windows and Mac OS X are available for download from the Pololu
-P-Star 25K50 Micro User's Guide:
+Installers for Windows, Linx, and Mac OS X are available for download from the
+Pololu P-Star User's Guide:
 
   http://www.pololu.com/docs/0J62
 
-Linux users can download the source code and compile it.  See
-[BUILDING.md](BUILDING.md) for instructions.
 
 ## EEPROM support
 
@@ -37,6 +41,7 @@ read and write HEX files that contains data for both flash and EEPROM.  The
 EEPROM data should be placed in the HEX file starting at address 0xF00000 (so
 0xF00000 corresponds to the first byte of EEPROM).
 
+
 ## Credits
 
 This repository contains a copy of [https://github.com/leethomason/tinyxml2](TinyXML-2)
@@ -44,6 +49,9 @@ by Lee Thomason (www.grinninglizard.com).
 
 ## Version history
 
+* 2.4.0 (2018-05-02):
+  * Added support for the Pololu USB AVR Programmer v2.1, the Tic T500,
+    and the first four Jrk G2 products.
 * 2.3.1 (2017-12-17):
   * Fixed a bug that prevented p-load from reading HEX files with Windows line
     endings on Linux or macOS.
