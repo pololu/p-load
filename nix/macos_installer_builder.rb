@@ -9,20 +9,26 @@ OutDir = Pathname(ENV.fetch('out'))
 PayloadDir = Pathname(ENV.fetch('payload'))
 SrcDir = Pathname(ENV.fetch('src'))
 Version = File.read(PayloadDir + 'version.txt')
-StagingDir = OutDir + 'release'
-AppDir = StagingDir + 'Pololu USB Bootloader Utility'
-BinDir = AppDir + 'bin'
-PathDir = OutDir + 'path'
-ResDir = OutDir + 'resources'
 
+StagingDir = Pathname('p-load-macos-files')
+OutTar = OutDir + "#{StagingDir}.tar"
+
+ReleaseDir = Pathname('release')
+AppDir = ReleaseDir + 'Pololu USB Bootloader Utility'
+BinDir = AppDir + 'bin'
+PathDir = Pathname('path')
+ResDir = Pathname('resources')
+
+mkdir_p StagingDir
+cd StagingDir
 mkdir_p BinDir
 mkdir_p PathDir
 mkdir_p ResDir
 
 cp_r Dir.glob(PayloadDir + 'bin' + '*'), BinDir
-cp ENV.fetch('license'), StagingDir + 'LICENSE.html'
+cp ENV.fetch('license'), ReleaseDir + 'LICENSE.html'
 
-File.open(OutDir + 'distribution.xml', 'w') do |f|
+File.open('distribution.xml', 'w') do |f|
   f.print <<EOF
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <installer-gui-script minSpecVersion="1">
@@ -69,7 +75,7 @@ File.open(PathDir + '99-p-load', 'w') do |f|
   f.puts '/Applications/Pololu USB Bootloader Utility/bin'
 end
 
-File.open(OutDir + 'build.sh', 'w') do |f|
+File.open('build.sh', 'w') do |f|
   f.puts <<EOF
 #!/bin/bash
 set -ue
@@ -99,4 +105,9 @@ productbuild \\
 EOF
 end
 
-chmod 'u+x', OutDir + 'build.sh'
+mkdir_p OutDir
+chmod_R 'u+w', '.'
+chmod 'u+x', 'build.sh'
+cd '..'
+success = system("tar cfv #{OutTar} #{StagingDir}")
+raise "tar failed: error #{$?.exitstatus}" if !success
