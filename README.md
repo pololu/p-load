@@ -28,7 +28,7 @@ run `p-load --help` at a command prompt.
 
 ## Installation
 
-Installers for Windows, Linx, and Mac OS X are available for download from the
+Installers for Windows, Linux, and macOS are available for download from the
 Pololu P-Star User's Guide:
 
   http://www.pololu.com/docs/0J62
