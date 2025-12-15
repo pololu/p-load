@@ -157,8 +157,9 @@ library into your MSYS2 environment.
     cd libusbp
     mkdir build
     cd build
-    MSYS2_ARG_CONV_EXCL=- cmake .. -G"MSYS Makefiles" -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX
-    make install DESTDIR=/
+    cmake .. -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX
+    ninja
+    ninja install
     cd ../..
 
 You can test to see if libusbp-1 was installed correctly by running
@@ -174,8 +175,9 @@ Run these commands to build this software and install it:
     cd p-load
     mkdir build
     cd build
-    MSYS2_ARG_CONV_EXCL=- cmake .. -G"MSYS Makefiles" -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX
-    make install DESTDIR=/
+    cmake .. -DCMAKE_INSTALL_PREFIX=$MINGW_PREFIX
+    ninja
+    ninja install
     cd ../..
 
 You should now be able to run `p-load` in your shell.
